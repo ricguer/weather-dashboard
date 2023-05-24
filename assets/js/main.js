@@ -1,5 +1,6 @@
                                                                 /* ================= GLOBAL VARIABLES ================= */
-const apiURL = "http://api.openweathermap.org/";                /* API URL                                              */
+const urlAPI     = "http://api.openweathermap.org/";            /* API URL                                              */
+const urlIconSrc = "https://openweathermap.org/img/wn/"         /* Icon URL                                             */
 const openWeatherKeyAPI = "2dac5e788766a237de5453bf4c85309a";   /* API Key                                              */
 const rowOfCards = $("#card-row");
 
@@ -19,34 +20,67 @@ function DayWeather(date,
     this.humidity     =  humidity;
 }
 
+
+                                                                /* ============ GENERATE DEFAULT DASHBOARD ============ */
 $(function () 
 {
+    let currentWeather = fetchCurrentWeather("Miami");
+    createCurrentWeatherCard(currentWeather);
     let fiveDayForecast = fetchFiveDayForecast("Miami");        /* Fetch full five day forecast of default city         */
     createFiveDayForecast(fiveDayForecast);                     /* Create five day forecast weather dashboard           */
 });
 
+
+                                                                /* ================= GLOBAL FUNCTIONS ================= */
+
+function fetchCurrentWeather(cityName) 
+{
+    let processedCityName = cityName.replace(/\s+/g, "%20");    /* Replaces spaces with "%20" as per API example        */
+    let requestURL = urlAPI + "data/2.5/weather?q=" + processedCityName + "&units=imperial" + "&appid=" + openWeatherKeyAPI;
+    let currentWeather = fetch(requestURL)
+                            .then((response) => response.json());
+
+    return currentWeather;
+}
+
+/**
+ * Fetches five day forecast from OpenWeather API
+ * @param {*} cityName name of city used to retrieve forecast
+ * @returns five day forecast API response
+ */
 function fetchFiveDayForecast(cityName) 
 {
-    let processedCityName = cityName.replace(/\s+/g, "%20");
-    let requestURL = apiURL + "data/2.5/forecast?q=" + processedCityName + "&units=imperial" + "&appid=" + openWeatherKeyAPI;
-    let fiveDayForecast =  fetch(requestURL)
-                            .then((response) => response.json())
+    let processedCityName = cityName.replace(/\s+/g, "%20");    /* Replaces spaces with "%20" as per API example        */
 
-    console.log(fiveDayForecast);
+                                                                /* Concatinate request URL                              */
+    let requestURL = urlAPI + "data/2.5/forecast?q=" + processedCityName + "&units=imperial" + "&appid=" + openWeatherKeyAPI;
+
+                                                                /* Fetch five day forecast with defined request URL     */
+    let fiveDayForecast =  fetch(requestURL)
+                            .then((response) => response.json());
 
     return fiveDayForecast;
 }
 
+
+/**
+ * Condenses the 40 element API response to just 5 - giving an overview of weather over 5 days.
+ * @param {*} fullFiveDayForecast array of weather data for five days in three hour increments
+ * @returns average weather per day for five days
+ */
 function averageFiveDayForecast(fullFiveDayForecast) 
 {
     let averageFiveDay = [];
 
-    for (let forecastIndex = 0; forecastIndex < fullFiveDayForecast.list.length; forecastIndex += 8) {
+                                                                /* Create and save objects with weather info per day    */
+    for (let forecastIndex = 0; forecastIndex < fullFiveDayForecast.list.length; forecastIndex += 8) 
+    {
         const element = fullFiveDayForecast.list[forecastIndex];
-        
+        const iconSource = urlIconSrc + element.weather[0].icon + "@4x.png";
+
         averageFiveDay.push(new DayWeather( dayjs(element.dt_txt).format("MM/DD/YYYY"), 
-                                            "./assets/images/sun.svg", 
-                                            "Icon Alt Text", 
+                                            iconSource, 
+                                            element.weather[0].description, 
                                             element.main.temp, 
                                             element.wind.speed, 
                                             element.main.humidity));
@@ -55,12 +89,18 @@ function averageFiveDayForecast(fullFiveDayForecast)
     return averageFiveDay;
 }
 
-function setWeatherIcon(weatherDescription) {
-    
+
+function createCurrentWeatherCard(currentWeather) 
+{
+    //TODO: Implement function to dynamically generate card for "Today's Weather"
 }
 
 
-
+/**
+ * Dynamically clear and generate cards in "5-Day Forecast" section of dashboard.
+ * 
+ * @param {*} fiveDayForecast forecast used to generate day cards
+ */
 function createFiveDayForecast(fiveDayForecast) 
 {
     rowOfCards.empty();
@@ -121,6 +161,8 @@ function createFiveDayForecast(fiveDayForecast)
 }
 
 
+                                                                /* ================= EVENT LISTENERS ================== */
+
 /**
  * Event handler for city name submission.
  * 
@@ -135,7 +177,6 @@ function cityNameSubmitEventListener(event) {
     let fiveDayForecast = fetchFiveDayForecast(cityName);       /* Fetch full five day forecast of requested city       */
     createFiveDayForecast(fiveDayForecast);                     /* Create five day forecast weather dashboard           */
 }
-
 
                                                                 /* Apply event listener to city name "Submit" button    */
 $("form").submit((event) => cityNameSubmitEventListener(event));
