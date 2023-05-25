@@ -240,7 +240,6 @@ function updateRecentlySearched(cityName)
                                                                 /* Return if city name has already been searched        */
     if (localStorage.getItem(cityName) === null)
     {
-        console.log(localStorage.getItem(cityName));
         localStorage.setItem(cityName, cityName);               /* Save city name to local storage                      */
     
                                                                 /* Create new list item for city name                   */
