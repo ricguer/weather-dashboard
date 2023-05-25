@@ -131,7 +131,7 @@ function createFiveDayForecast(fiveDayForecast)
         for (let dayIndex = 0; dayIndex < forecastFiveDays.length; dayIndex++) 
         {
             let cardColDiv = $("<div>", {class: "col"});
-            let card = $("<div>", {class: "card h-100", style: "max-width: 80%"});
+            let card = $("<div>", {class: "card h-100"});
             let cardBody = $("<div>", {class: "card-body"});
         
                                                                 /* -------------------- Card Title -------------------- */
