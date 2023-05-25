@@ -39,7 +39,7 @@ $(function ()
 function fetchCurrentWeather(cityName) 
 {
     let processedCityName = cityName.replace(/\s+/g, "%20");    /* Replaces spaces with "%20" as per API example        */
-    let requestURL = urlAPI + "data/2.5/weather?q=" + processedCityName + "&units=imperial" + "&appid=" + openWeatherKeyAPI;
+    let requestURL = urlAPI + "data/2.5/weather?q=" + processedCityName + "&units=imperial" + "&appid=" + API_KEY_OPENWEATHER;
     
     let currentWeather = fetch(requestURL)
                             .then((response) => response.json());
@@ -59,7 +59,7 @@ function fetchFiveDayForecast(cityName)
     let processedCityName = cityName.replace(/\s+/g, "%20");    /* Replaces spaces with "%20" as per API example        */
 
                                                                 /* Concatinate request URL                              */
-    let requestURL = urlAPI + "data/2.5/forecast?q=" + processedCityName + "&units=imperial" + "&appid=" + openWeatherKeyAPI;
+    let requestURL = urlAPI + "data/2.5/forecast?q=" + processedCityName + "&units=imperial" + "&appid=" + API_KEY_OPENWEATHER;
 
                                                                 /* Fetch five day forecast with defined request URL     */
     let fiveDayForecast =  fetch(requestURL)
