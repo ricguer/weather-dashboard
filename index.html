@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset='utf-8'>
@@ -23,29 +23,29 @@
     <main class="container">
         <section id="todays-weather">
             <h4>Today's Weather</h4>
-            <div class="card mb-3">
+            <div id="todays-weather-card-container" class="card mb-3">
                 <div class="row g-0">
                     <div class="col-md-8">
                         <div class="card-body">
-                            <h5 class="card-title">Today's Date</h5>
+                            <h5 id="current-date" class="card-title">Today's Date</h5>
                             <section class="container">
                                 <div class="row row-cols-auto g-4">
                                     <div class="card">
                                         <div class="card-body">
                                             <h6 class="card-subtitle mb-2 text-body-secondary text-center">Temperature</h6>
-                                            <p id="current-temp">##.## C</p>
+                                            <p id="current-temp" class="text-center"></p>
                                         </div>
                                     </div>
                                     <div class="card">
                                         <div class="card-body">
                                             <h6 class="card-subtitle mb-2 text-body-secondary text-center">Wind</h6>
-                                            <p id="current-wind">### mph</p>
+                                            <p id="current-wind" class="text-center"></p>
                                         </div>
                                     </div>
                                     <div class="card">
                                         <div class="card-body">
                                             <h6 class="card-subtitle mb-2 text-body-secondary text-center">Humidity</h6>
-                                            <p id="current-humidity">####</p>
+                                            <p id="current-humidity" class="text-center"></p>
                                         </div>
                                     </div>
                                 </div>
@@ -53,7 +53,7 @@
                             </div>
                         </div>
                         <div class="col-md-4 text-center">
-                            <img src="./assets/images/sun.svg" class="img-fluid rounded-start" alt="...">
+                            <img id="current-icon" class="img-fluid rounded-start" alt="...">
                         </div>
                 </div>
             </div>
@@ -69,6 +69,7 @@
         integrity="sha256-iu/zLUB+QgISXBLCW/mcDi/rnf4m4uEDO0wauy76x7U="
         crossorigin="anonymous"
     ></script>
+    <script src="./assets/js/config.js"></script>
     <script src='./assets/js/main.js'></script>
 </body>
 
