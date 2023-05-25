@@ -1,7 +1,7 @@
                                                                 /* ================= GLOBAL VARIABLES ================= */
 const urlAPI     = "http://api.openweathermap.org/";            /* API URL                                              */
 const urlIconSrc = "https://openweathermap.org/img/wn/"         /* Icon URL                                             */
-const openWeatherKeyAPI = "2dac5e788766a237de5453bf4c85309a";   /* API Key                                              */
+const curWeatherContain = $("#todays-weather-card-container");
 const rowOfCards = $("#card-row");
 
                                                                 /* Object: stores weather data per card (day)           */
@@ -24,9 +24,10 @@ function DayWeather(date,
                                                                 /* ============ GENERATE DEFAULT DASHBOARD ============ */
 $(function () 
 {
-    let currentWeather = fetchCurrentWeather("Miami");
-    createCurrentWeatherCard(currentWeather);
-    let fiveDayForecast = fetchFiveDayForecast("Miami");        /* Fetch full five day forecast of default city         */
+    let defaultCity = "Miami";
+    let currentWeather = fetchCurrentWeather(defaultCity);
+    updateCurrentWeatherCard(currentWeather);
+    let fiveDayForecast = fetchFiveDayForecast(defaultCity);    /* Fetch full five day forecast of default city         */
     createFiveDayForecast(fiveDayForecast);                     /* Create five day forecast weather dashboard           */
 });
 
@@ -43,9 +44,11 @@ function fetchCurrentWeather(cityName)
     return currentWeather;
 }
 
+
 /**
  * Fetches five day forecast from OpenWeather API
- * @param {*} cityName name of city used to retrieve forecast
+ * @param {*} cityName name of city used to retrieve 
+ * forecast
  * @returns five day forecast API response
  */
 function fetchFiveDayForecast(cityName) 
@@ -64,8 +67,10 @@ function fetchFiveDayForecast(cityName)
 
 
 /**
- * Condenses the 40 element API response to just 5 - giving an overview of weather over 5 days.
- * @param {*} fullFiveDayForecast array of weather data for five days in three hour increments
+ * Condenses the 40 element API response to just 5 - giving 
+ * an overview of weather over 5 days.
+ * @param {*} fullFiveDayForecast array of weather data for
+ * five days in three hour increments
  * @returns average weather per day for five days
  */
 function averageFiveDayForecast(fullFiveDayForecast) 
@@ -90,24 +95,38 @@ function averageFiveDayForecast(fullFiveDayForecast)
 }
 
 
-function createCurrentWeatherCard(currentWeather) 
+function updateCurrentWeatherCard(currentWeather) 
 {
-    //TODO: Implement function to dynamically generate card for "Today's Weather"
+                                                                /* Wait for current weather data availability           */
+    currentWeather.then((data) => {
+
+                                                                /* Concatinate icon source URL                          */
+        const iconSource = urlIconSrc + data.weather[0].icon + "@4x.png";
+
+        $("#current-date").text(dayjs().format("MM/DD/YYYY"));  /* Format and set current date                          */
+        $("#current-temp").text(data.main.temp + " °F");        /* Set current date's temperature                       */
+        $("#current-wind").text(data.wind.speed + " mph");      /* Set current date's wind speed                        */
+        $("#current-humidity").text(data.main.humidity + "%");  /* Set current date's humidity                          */
+        $("#current-icon").attr("src", iconSource);             /* Set current date's weather icon                      */
+    });
 }
 
 
 /**
- * Dynamically clear and generate cards in "5-Day Forecast" section of dashboard.
+ * Dynamically clear and generate cards in "5-Day Forecast"
+ * section of dashboard.
  * 
- * @param {*} fiveDayForecast forecast used to generate day cards
+ * @param {*} fiveDayForecast forecast used to generate day
+ * cards
  */
-function createFiveDayForecast(fiveDayForecast) 
+function createFiveDayForecast(fiveDayForecast)
 {
-    rowOfCards.empty();
+    rowOfCards.empty();                                         /* Clear current 5 day forecast                         */
 
+                                                                /* Wait for five day forecast data                      */
     fiveDayForecast.then((data) => {
 
-        let forecastFiveDays = averageFiveDayForecast(data);
+        let forecastFiveDays = averageFiveDayForecast(data);    /* Extract five data points from full forecast array    */
 
         for (let dayIndex = 0; dayIndex < forecastFiveDays.length; dayIndex++) 
         {
@@ -115,12 +134,14 @@ function createFiveDayForecast(fiveDayForecast)
             let card = $("<div>", {class: "card h-100", style: "max-width: 80%"});
             let cardBody = $("<div>", {class: "card-body"});
         
+                                                                /* -------------------- Card Title -------------------- */
             let cardTitle = $("<h5>", 
             {
                 class: "card-title",
                 text: forecastFiveDays[dayIndex].date
             });
         
+                                                                /* -------------------- Card Image -------------------- */
             let cardImage = $("<img>", 
             {
                 class: "card-img-top",
@@ -128,29 +149,34 @@ function createFiveDayForecast(fiveDayForecast)
                 alt: forecastFiveDays[dayIndex].iconAltText
             });
         
+                                                                /* -------------------- Card Data --------------------- */
             let cardListGroup = $("<ul>", 
             {
                 class: "list-group list-group-flush",
             });
         
+                                                                /* -------------- Card Data: Temperature -------------- */
             let tempItem = $("<li>",
             {
                 class: "list-group-item",
                 text: "Temperature: " + forecastFiveDays[dayIndex].temperature + " °F"
             });
         
+                                                                /* ----------------- Card Data: Wind ------------------ */
             let windItem = $("<li>",
             {
                 class: "list-group-item",
                 text: "Wind: " + forecastFiveDays[dayIndex].wind + " mph"
             });
         
+                                                                /* --------------- Card Data: Humidity ---------------- */
             let humidityItem = $("<li>",
             {
                 class: "list-group-item",
                 text: "Humidity: " + forecastFiveDays[dayIndex].humidity + "%"
             });
         
+                                                                /* -------- Append Cards to Respective Section -------- */
             cardListGroup.append(tempItem, windItem, humidityItem);
             cardBody.append(cardTitle, cardImage);
             card.append(cardBody, cardListGroup);
@@ -173,6 +199,9 @@ function cityNameSubmitEventListener(event) {
 
                                                                 /* Replace spaces in city name with API syntax ("%20")  */
     let cityName = $('input[type="search"]').val().replace(/\s+/g, "%20");
+
+    let currentWeather = fetchCurrentWeather(cityName);         /* Fetch city's current weather                         */
+    updateCurrentWeatherCard(currentWeather);                   /* Update card containing city's current weather        */
 
     let fiveDayForecast = fetchFiveDayForecast(cityName);       /* Fetch full five day forecast of requested city       */
     createFiveDayForecast(fiveDayForecast);                     /* Create five day forecast weather dashboard           */
