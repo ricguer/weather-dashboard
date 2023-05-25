@@ -13,13 +13,14 @@
 
 <body class="bg-light">
     <main>
-        <div class="row align-items-start">
-            <aside class="col-md-auto">
+        <aside class="row align-items-start">
+            <div class="col-md-auto">
                 <div class="d-flex flex-column flex-shrink-0 p-3">
-                    <h2>Weather Dashboard</h2>
+                    <h1>Weather Dashboard</h1>
+                    <h4>Search for a City:</h4>
                     <form role="search">
                         <div class="mb-3">
-                            <input class="form-control me-2" type="search" placeholder="Search by City Name" aria-label="Search">
+                            <input class="form-control me-2" type="search" placeholder="e.g. Miami" aria-label="Search">
                         </div>
                         <div class="mb-3 d-grid">
                             <button class="btn btn-outline-success" type="submit">Search</button>
@@ -27,25 +28,21 @@
                     </form>
                     <span class="fs-4">Recently Searched Cities</span>
                     <hr>
-                    <ul class="nav nav-pills flex-column mb-auto">
-                        <li class="nav-item">
-                            <a href="#" class="nav-link link-dark">
-                                Miami
-                            </a>
-                        </li>
+                    <ul id="recently-searched-list" class="nav nav-pills flex-column mb-auto">
                     </ul>
                     <hr>
                 </div>
-            </aside>
+            </div>
             <div class="col">
                 <section id="todays-weather" class="container">
+                    <h3 id="city-name"></h3>
                     <h4>Today's Weather</h4>
                     <div id="todays-weather-card-container" class="card mb-3">
                         <div class="row g-0">
                             <div class="col-md-8">
                                 <div class="card-body">
                                     <h5 id="current-date" class="card-title"></h5>
-                                    <div class="row row-cols-1 row-cols-md-4 g-4 justify-content-center">
+                                    <div class="row row-cols-1 row-cols-md-3 g-4 justify-content-center">
                                         <div class="col">
                                             <div class="card">
                                                 <div class="card-body">
@@ -85,7 +82,7 @@
                     <div id="card-row" class="row row-cols-1 row-cols-md-5 g-4"></div>
                 </section>
             </div>
-        </div>
+        </aside>
     </main>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.3/dayjs.min.js"

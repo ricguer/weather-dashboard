@@ -1,8 +1,8 @@
                                                                 /* ================= GLOBAL VARIABLES ================= */
 const urlAPI     = "http://api.openweathermap.org/";            /* API URL                                              */
 const urlIconSrc = "https://openweathermap.org/img/wn/"         /* Icon URL                                             */
-const curWeatherContain = $("#todays-weather-card-container");
-const rowOfCards = $("#card-row");
+const curWeatherContain = $("#todays-weather-card-container");  /* Container for city's current weather conditions      */
+const rowOfCards = $("#card-row");                              /* Row of cards for 5 Day Weather Forecast              */
 
                                                                 /* Object: stores weather data per card (day)           */
 function DayWeather(date, 
@@ -24,11 +24,13 @@ function DayWeather(date,
                                                                 /* ============ GENERATE DEFAULT DASHBOARD ============ */
 $(function () 
 {
-    let defaultCity = "Miami";
-    let currentWeather = fetchCurrentWeather(defaultCity);
-    updateCurrentWeatherCard(currentWeather);
+    let defaultCity = "Miami";                                  /* Set default name of city when page first loads       */
+    $("#city-name").text(defaultCity);                          /* Update city name on dashboard                        */
+    let currentWeather = fetchCurrentWeather(defaultCity);      /* Fetch current weather of selected city               */
+    updateCurrentWeatherCard(currentWeather);                   /* Update card containing current weather for city      */
     let fiveDayForecast = fetchFiveDayForecast(defaultCity);    /* Fetch full five day forecast of default city         */
     createFiveDayForecast(fiveDayForecast);                     /* Create five day forecast weather dashboard           */
+    createRecentlySearchedList();                               /* Generate list of recently searched cities            */
 });
 
 
@@ -83,6 +85,9 @@ function averageFiveDayForecast(fullFiveDayForecast)
         const element = fullFiveDayForecast.list[forecastIndex];
         const iconSource = urlIconSrc + element.weather[0].icon + "@4x.png";
 
+        //TODO: Thoroughly comb through response to get an accurate 5 day forecast.
+
+                                                                /* Save chosen day to the array that will be returned   */
         averageFiveDay.push(new DayWeather( dayjs(element.dt_txt).format("MM/DD/YYYY"), 
                                             iconSource, 
                                             element.weather[0].description, 
@@ -108,6 +113,9 @@ function updateCurrentWeatherCard(currentWeather)
         $("#current-wind").text(data.wind.speed + " mph");      /* Set current date's wind speed                        */
         $("#current-humidity").text(data.main.humidity + "%");  /* Set current date's humidity                          */
         $("#current-icon").attr("src", iconSource);             /* Set current date's weather icon                      */
+
+                                                                /* Set current date's weather icon alt text             */
+        $("#current-icon").attr("alt", data.weather[0].description);
     });
 }
 
@@ -130,9 +138,9 @@ function createFiveDayForecast(fiveDayForecast)
 
         for (let dayIndex = 0; dayIndex < forecastFiveDays.length; dayIndex++) 
         {
-            let cardColDiv = $("<div>", {class: "col"});
-            let card = $("<div>", {class: "card h-100"});
-            let cardBody = $("<div>", {class: "card-body"});
+            let cardColDiv  =  $("<div>", {class: "col"});
+            let card        =  $("<div>", {class: "card h-100"});
+            let cardBody    =  $("<div>", {class: "card-body"});
         
                                                                 /* -------------------- Card Title -------------------- */
             let cardTitle = $("<h5>", 
@@ -187,6 +195,73 @@ function createFiveDayForecast(fiveDayForecast)
 }
 
 
+/**
+ * Generate and display a list of recently searched cities.
+ */
+function createRecentlySearchedList() 
+{
+    $("#recently-searched-list").empty();
+
+    for (let i = 0; i < localStorage.length; i++) 
+    {
+        let key    =  localStorage.key(i);
+        let value  =  localStorage.getItem(key);
+
+                                                                /* Create new list item for city name                   */
+        let newSearchItem = $("<li>", 
+        {
+            class: "nav-item",
+        });
+
+                                                                /* Create a link to the respective city                 */
+        let itemContent = $("<a>",
+        {
+            href: "#",
+            class: "nav-link link-dark",
+            text: value,
+            onclick: "updateWeatherDashEventListener(this)"
+        })
+
+        newSearchItem.append(itemContent);                      /* Add content to item before appending to list         */
+        $("#recently-searched-list").append(newSearchItem);     /* Add searched city name to recently searched list     */
+    }
+}
+
+
+/**
+ * Updates local storage and recently searched list for 
+ * newly searched city names.
+ * 
+ * @param {*} cityName name of city to add to recently 
+ * searched list
+ * @returns 
+ */
+function updateRecentlySearched(cityName)
+{
+                                                                /* Return if city name has already been searched        */
+    if (localStorage.getItem(cityName) === null)
+    {
+        localStorage.setItem(cityName, cityName);               /* Save city name to local storage                      */
+    
+                                                                /* Create new list item for city name                   */
+        let newSearchItem = $("<li>", 
+        {
+            class: "nav-item",
+        });
+
+        let itemContent = $("<a>",
+        {
+            href: "#",
+            class: "nav-link link-dark",
+            text: cityName
+        })
+    
+        newSearchItem.append(itemContent);
+        $("#recently-searched-list").append(newSearchItem);     /* Add searched city name to recently searched list     */
+    };
+}
+
+
                                                                 /* ================= EVENT LISTENERS ================== */
 
 /**
@@ -194,18 +269,52 @@ function createFiveDayForecast(fiveDayForecast)
  * 
  * @param {*} event 
  */
-function cityNameSubmitEventListener(event) {
+function cityNameSubmitEventListener(event) 
+{
     event.preventDefault();                                     /* Prevent default form submit action (refreshing page) */
 
+    try 
+    {
+        let cityNameUserInput = $('input[type="search"]').val();
+
                                                                 /* Replace spaces in city name with API syntax ("%20")  */
-    let cityName = $('input[type="search"]').val().replace(/\s+/g, "%20");
+        let formattedCityName = cityNameUserInput.replace(/\s+/g, "%20");
+    
+                                                                /* Fetch city's current weather                         */
+        let currentWeather = fetchCurrentWeather(formattedCityName);  
 
-    let currentWeather = fetchCurrentWeather(cityName);         /* Fetch city's current weather                         */
-    updateCurrentWeatherCard(currentWeather);                   /* Update card containing city's current weather        */
-
-    let fiveDayForecast = fetchFiveDayForecast(cityName);       /* Fetch full five day forecast of requested city       */
-    createFiveDayForecast(fiveDayForecast);                     /* Create five day forecast weather dashboard           */
+                                                                /* Fetch full five day forecast of requested city       */
+        let fiveDayForecast = fetchFiveDayForecast(formattedCityName);
+        
+        $("#city-name").text(cityNameUserInput);
+        updateCurrentWeatherCard(currentWeather);               /* Update card containing city's current weather        */
+        createFiveDayForecast(fiveDayForecast);                 /* Create five day forecast weather dashboard           */
+        updateRecentlySearched(cityNameUserInput);              /* Add city name to user's city search history          */
+    } 
+    catch (error) 
+    {
+        //TODO: Create and handle an error for cities that are not found
+    }
 }
 
                                                                 /* Apply event listener to city name "Submit" button    */
 $("form").submit((event) => cityNameSubmitEventListener(event));
+
+
+/**
+ * Event listener for links of recently searched list.
+ * 
+ * @param {*} element link element from the recently 
+ * searched list
+ */
+function updateWeatherDashEventListener(element) 
+{
+    let newCity = element.textContent;                          /* Set new city name                                    */
+
+    $("#city-name").text(newCity);                              /* Update city name on dashboard                        */
+    let currentWeather = fetchCurrentWeather(newCity);          /* Fetch current weather of selected city               */
+    updateCurrentWeatherCard(currentWeather);                   /* Update card containing current weather for city      */
+    let fiveDayForecast = fetchFiveDayForecast(newCity);        /* Fetch full five day forecast of default city         */
+    createFiveDayForecast(fiveDayForecast);                     /* Create five day forecast weather dashboard           */
+    createRecentlySearchedList();                               /* Generate list of recently searched cities            */
+}
