@@ -1,5 +1,5 @@
                                                                 /* ================= GLOBAL VARIABLES ================= */
-const urlAPI     = "http://api.openweathermap.org/";            /* API URL                                              */
+const urlAPI     = "https://api.openweathermap.org/";            /* API URL                                              */
 const urlIconSrc = "https://openweathermap.org/img/wn/"         /* Icon URL                                             */
 const curWeatherContain = $("#todays-weather-card-container");  /* Container for city's current weather conditions      */
 const rowOfCards = $("#card-row");                              /* Row of cards for 5 Day Weather Forecast              */
