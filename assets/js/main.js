@@ -40,6 +40,7 @@ function fetchCurrentWeather(cityName)
 {
     let processedCityName = cityName.replace(/\s+/g, "%20");    /* Replaces spaces with "%20" as per API example        */
     let requestURL = urlAPI + "data/2.5/weather?q=" + processedCityName + "&units=imperial" + "&appid=" + openWeatherKeyAPI;
+    
     let currentWeather = fetch(requestURL)
                             .then((response) => response.json());
 
@@ -84,8 +85,6 @@ function averageFiveDayForecast(fullFiveDayForecast)
     {
         const element = fullFiveDayForecast.list[forecastIndex];
         const iconSource = urlIconSrc + element.weather[0].icon + "@4x.png";
-
-        //TODO: Thoroughly comb through response to get an accurate 5 day forecast.
 
                                                                 /* Save chosen day to the array that will be returned   */
         averageFiveDay.push(new DayWeather( dayjs(element.dt_txt).format("MM/DD/YYYY"), 
@@ -241,6 +240,7 @@ function updateRecentlySearched(cityName)
                                                                 /* Return if city name has already been searched        */
     if (localStorage.getItem(cityName) === null)
     {
+        console.log(localStorage.getItem(cityName));
         localStorage.setItem(cityName, cityName);               /* Save city name to local storage                      */
     
                                                                 /* Create new list item for city name                   */
@@ -273,28 +273,25 @@ function cityNameSubmitEventListener(event)
 {
     event.preventDefault();                                     /* Prevent default form submit action (refreshing page) */
 
-    try 
-    {
-        let cityNameUserInput = $('input[type="search"]').val();
+    let cityNameUserInput = $('input[type="search"]').val();
 
+    if (cityNameUserInput.trim() != "")
+    {
                                                                 /* Replace spaces in city name with API syntax ("%20")  */
         let formattedCityName = cityNameUserInput.replace(/\s+/g, "%20");
-    
+        
                                                                 /* Fetch city's current weather                         */
         let currentWeather = fetchCurrentWeather(formattedCityName);  
-
+        
                                                                 /* Fetch full five day forecast of requested city       */
         let fiveDayForecast = fetchFiveDayForecast(formattedCityName);
         
         $("#city-name").text(cityNameUserInput);
-        updateCurrentWeatherCard(currentWeather);               /* Update card containing city's current weather        */
-        createFiveDayForecast(fiveDayForecast);                 /* Create five day forecast weather dashboard           */
-        updateRecentlySearched(cityNameUserInput);              /* Add city name to user's city search history          */
-    } 
-    catch (error) 
-    {
-        //TODO: Create and handle an error for cities that are not found
+        updateCurrentWeatherCard(currentWeather);                   /* Update card containing city's current weather        */
+        createFiveDayForecast(fiveDayForecast);                     /* Create five day forecast weather dashboard           */
+        updateRecentlySearched(cityNameUserInput);                  /* Add city name to user's city search history          */
     }
+
 }
 
                                                                 /* Apply event listener to city name "Submit" button    */
